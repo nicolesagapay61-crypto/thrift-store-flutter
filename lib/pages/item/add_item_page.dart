@@ -16,10 +16,10 @@ class AddItemPage extends StatefulWidget {
 }
 
 class AddItemPageState extends State<AddItemPage> {
-  final _nameCtrl    = TextEditingController();
-  final _titleCtrl   = TextEditingController();
-  final _descCtrl    = TextEditingController();
-  final _priceCtrl   = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
   final _contactCtrl = TextEditingController();
   File? _image;
   final picker = ImagePicker();
@@ -43,12 +43,12 @@ class AddItemPageState extends State<AddItemPage> {
     final svc = Provider.of<SupabaseService>(context, listen: false);
 
     await svc.addItem(
-      title:        _titleCtrl.text.trim(),
-      desc:         _descCtrl.text.trim(),
-      price:        double.tryParse(_priceCtrl.text) ?? 0,
-      contact:      _contactCtrl.text.trim(),
+      title: _titleCtrl.text.trim(),
+      desc: _descCtrl.text.trim(),
+      price: double.tryParse(_priceCtrl.text) ?? 0,
+      contact: _contactCtrl.text.trim(),
       uploaderName: _nameCtrl.text.trim(),
-      image:        _image!,
+      image: _image!,
     );
 
     setState(() => _uploading = false);
@@ -68,7 +68,11 @@ class AddItemPageState extends State<AddItemPage> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF7209B7), Color(0xFFFF006E)],
+          colors: [
+            Color(0xFF4CC9F0), // light blue top
+            Color(0xFF90E0EF), // aqua
+            Color(0xFFFFB385), // peach/orange bottom
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -84,7 +88,10 @@ class AddItemPageState extends State<AddItemPage> {
           title: Text(
             '✨ Add Your Thrift',
             style: GoogleFonts.poppins(
-                fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           centerTitle: true,
         ),
@@ -96,63 +103,48 @@ class AddItemPageState extends State<AddItemPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Title field
-                CustomInputField(
-                  controller: _titleCtrl,
-                  label: 'Item Title',
-                  icon: Icons.label_outline,
-                ),
+                // Item Title
+                _frostedInput(_titleCtrl, 'Item Title', Icons.label_outline),
                 const SizedBox(height: 16),
 
                 // Description
-                CustomInputField(
-                  controller: _descCtrl,
-                  label: 'Description',
-                  icon: Icons.description_outlined,
-                  maxLines: 3,
-                ),
+                _frostedInput(
+                    _descCtrl, 'Description', Icons.description_outlined,
+                    maxLines: 3),
                 const SizedBox(height: 16),
 
                 // Price
-                CustomInputField(
-                  controller: _priceCtrl,
-                  label: 'Price (Php)',
-                  icon: Icons.attach_money,
-                  keyboardType: TextInputType.number,
-                ),
+                _frostedInput(_priceCtrl, 'Price (Php)', Icons.attach_money,
+                    keyboardType: TextInputType.number),
                 const SizedBox(height: 16),
 
-                // Name
-                CustomInputField(
-                  controller: _nameCtrl,
-                  label: 'Your Display Name',
-                  icon: Icons.person_outline,
-                ),
+                // Display Name
+                _frostedInput(
+                    _nameCtrl, 'Your Display Name', Icons.person_outline),
                 const SizedBox(height: 16),
 
-                // Contact
-                CustomInputField(
-                  controller: _contactCtrl,
-                  label: 'Contact Email',
-                  icon: Icons.contact_mail_outlined,
-                ),
+                // Contact Email
+                _frostedInput(
+                    _contactCtrl, 'Contact Email', Icons.contact_mail_outlined),
                 const SizedBox(height: 24),
 
-                // Image picker
+                // Image Picker
                 _image == null
                     ? ElevatedButton.icon(
-                  icon: const Icon(Icons.photo_library, size: 24),
+                  icon: const Icon(Icons.photo_library_outlined, size: 22),
                   label: Text(
                     'Choose Photo',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white.withOpacity(0.9),
-                    foregroundColor: Colors.deepPurple,
+                    foregroundColor: const Color(0xFF4895EF),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
                   ),
                   onPressed: pickImage,
                 )
@@ -160,7 +152,8 @@ class AddItemPageState extends State<AddItemPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.file(_image!, height: 180, fit: BoxFit.cover),
+                      child: Image.file(_image!,
+                          height: 180, fit: BoxFit.cover),
                     ),
                     const SizedBox(height: 8),
                     TextButton(
@@ -172,20 +165,19 @@ class AddItemPageState extends State<AddItemPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
 
-                // Upload button
+                // Upload Button
                 ElevatedButton(
                   onPressed: canUpload ? _handleUpload : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.white.withOpacity(0.9),
+                    foregroundColor: const Color(0xFF4895EF),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    elevation: 6,
+                    elevation: 0,
                   ),
                   child: _uploading
                       ? const SizedBox(
@@ -204,6 +196,33 @@ class AddItemPageState extends State<AddItemPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // Helper: frosted input field
+  Widget _frostedInput(TextEditingController controller, String label, IconData icon,
+      {int maxLines = 1, TextInputType? keyboardType}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.4)),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.white70),
+          hintText: label,
+          hintStyle:
+          GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
+          border: InputBorder.none,
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
     );
